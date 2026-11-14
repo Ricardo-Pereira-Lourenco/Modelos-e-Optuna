@@ -1,2 +1,94 @@
-# Modelos-e-Optuna
-Este repositório contém um caderno jupyter que importa um banco de dados, induz diversos modelos e otimiza seus respectivos hiperparâmetros utilizando da biblioteca Optuna
+# Tiamat: Detecção de Fraudes em Cartões de Crédito
+
+Este repositório contém um notebook Jupyter que compara diferentes algoritmos de aprendizado de máquina na detecção de fraudes em transações de cartão de crédito, com hiperparâmetros otimizados pelo Optuna e avaliação por validação cruzada.
+
+## Contexto
+
+Fraudes são uma fração minúscula das transações (cerca de 0,17%), então a acurácia é uma métrica enganosa: um modelo que classifica tudo como "normal" já acerta quase tudo sem detectar nenhuma fraude. Além disso, bloquear uma transação legítima (falso positivo) também é custoso. Por isso o trabalho usa a **PR-AUC** para selecionar modelos e o **F0,5** para ajustar o limiar de decisão, priorizando a precisão.
+
+## Conjunto de dados
+
+[Credit Card Fraud Detection](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud) (`creditcard.csv`): 284.807 transações de clientes europeus, rotuladas como normais (`0`) ou fraudulentas (`1`). Os atributos `V1`–`V28` são componentes principais anonimizados (PCA), e o alvo é a coluna `Class`.
+
+> O arquivo `creditcard.csv` está incluído no repositório. Baixe-o no Kaggle e coloque-o na mesma pasta do notebook.
+
+## Abordagem
+
+- **Separação dos dados:** ~10% para teste com `StratifiedGroupKFold`. Linhas quase idênticas são agrupadas para não aparecerem ao mesmo tempo em treino e teste.
+- **Baseline:** `DummyClassifier`.
+- **Algoritmos:** Regressão Logística, KNN, Random Forest, Hist. Gradient Boosting e MLP.
+- **Validação cruzada:** 5 folds estratificados e agrupados, idênticos para todos os modelos.
+- **Otimização:** 100 tentativas do Optuna por algoritmo, ajustando os hiperparâmetros do modelo, o grau de subamostragem da classe majoritária e a redução de dimensionalidade (nenhuma, PCA ou `SelectKBest`).
+- **Pipeline (sem vazamento):** padronização → subamostragem → redução de dimensionalidade → modelo.
+- **Avaliação final:** cada melhor pipeline é avaliado uma única vez no teste. O limiar do melhor modelo é escolhido apenas com previsões fora da amostra da validação cruzada.
+
+## Principais resultados
+
+| Algoritmo | PR-AUC (CV) | PR-AUC (teste) |
+|---|---|---|
+| Baseline (Dummy) | 0,0018 | 0,0015 |
+| Regressão Logística | 0,768 | 0,749 |
+| KNN | 0,835 | 0,808 |
+| Random Forest | 0,838 | 0,842 |
+| **Hist. Gradient Boosting** | **0,844** | 0,840 |
+| MLP | 0,841 | 0,786 |
+
+O **Hist. Gradient Boosting** foi escolhido pela PR-AUC na validação cruzada. Com o limiar ajustado pelo F0,5 (0,883), obteve no teste:
+
+- Precisão: **0,971**
+- Recall: **0,767**
+- F0,5: **0,922**
+
+Isso equivale a 33 das 43 fraudes detectadas, com apenas 1 falso positivo.
+
+## Principais aprendizados
+
+- A subamostragem tratada como hiperparâmetro funcionou bem e acelerou o treino.
+- PCA e seleção de atributos não trouxeram ganho consistente, já que `V1`–`V28` já são componentes principais.
+- O teste tem poucas fraudes (43), então as métricas finais têm grande incerteza.
+
+## Tecnologias utilizadas
+
+- Python 3.13
+- Jupyter Notebook
+- Pandas e NumPy
+- Matplotlib e Seaborn
+- Scikit-learn
+- Imbalanced-learn
+- Optuna
+- Joblib
+
+## Como executar
+
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/Ricardo-Pereira-Lourenco/<nome-do-repositorio>.git
+   cd <nome-do-repositorio>
+   ```
+2. Instale as dependências:
+   ```bash
+   pip install pandas numpy matplotlib seaborn scikit-learn imbalanced-learn optuna joblib jupyter
+   ```
+3. Coloque o `creditcard.csv` na pasta do notebook.
+4. Abra e execute o notebook:
+   ```bash
+   jupyter notebook W_Tiamat.ipynb
+   ```
+
+> A otimização com 100 tentativas por algoritmo pode levar bastante tempo.
+
+## Estrutura do notebook
+
+1. Introdução
+2. Conjunto de dados e análise exploratória
+3. Métricas de desempenho (PR-AUC e F-beta)
+4. Baseline
+5. Comparação de algoritmos com Optuna
+6. Avaliação no conjunto de teste e ajuste do limiar
+7. Conclusão e aprendizados
+
+| Categoria | Informações |
+|-----------|-------------|
+| **Instituição** | Ilum Escola de Ciência |
+| **Aluno** | **Ricardo Pereira Lourenço de Carvalho**<br> GitHub: [@Ricardo-Pereira-Lourenco](https://github.com/Ricardo-Pereira-Lourenco) |
+| **Docentes** | **Daniel Roberto Cassar**<br> GitHub: [@drcassar](https://github.com/drcassar)
