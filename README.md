@@ -75,10 +75,8 @@ O **Hist. Gradient Boosting** foi escolhido pela PR-AUC na validação cruzada. 
    pip install pandas numpy matplotlib seaborn scikit-learn imbalanced-learn optuna joblib
    ```
 3. Coloque o `creditcard.csv` na pasta do notebook.
-4. Abra e execute o notebook:
-   ```bash
-   W_Tiamat.ipynb
-   ```
+
+4. Abra e execute o notebook `W_Tiamat.ipynb` (no VS Code, Jupyter ou Google Colab).
 
 > A otimização com 100 tentativas por algoritmo pode levar bastante tempo.
 
