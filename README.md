@@ -21,7 +21,7 @@ Fraudes são uma fração minúscula das transações (cerca de 0,17%), então a
 - **Algoritmos:** Regressão Logística, KNN, Random Forest, Hist. Gradient Boosting e MLP.
 - **Validação cruzada:** 5 folds estratificados e agrupados, idênticos para todos os modelos.
 - **Otimização:** 100 tentativas do Optuna por algoritmo, ajustando os hiperparâmetros do modelo, o grau de subamostragem da classe majoritária e a redução de dimensionalidade (nenhuma, PCA ou `SelectKBest`).
-- **Pipeline (sem vazamento):** padronização → subamostragem → redução de dimensionalidade → modelo.
+- **Pipeline:** normalização → subamostragem → redução de dimensionalidade → modelo.
 - **Avaliação final:** cada melhor pipeline é avaliado uma única vez no teste. O limiar do melhor modelo é escolhido apenas com previsões fora da amostra da validação cruzada.
 
 
